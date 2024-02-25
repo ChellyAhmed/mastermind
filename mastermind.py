@@ -15,9 +15,9 @@ guesses = set()
 
 def createRandomCombination():
     global guesses
-    colors = ["red", "blue", "green", "yellow"]
+    colors = ["red", "blue", "green", "yellow", "white"]
     combination = []
-    for i in range(4):
+    for i in range(len(colors)):
         color = random.choice(colors)
         colors.remove(color)
         combination.append(color)
@@ -28,9 +28,10 @@ def createRandomCombination():
     else:
         return createRandomCombination()
 
-colors = ["red", "blue", "green", "yellow"]
+colors = ["red", "blue", "green", "yellow", "black"]
+correctGuess = [""] * len(colors)
 symbols = []
-for i in range(4):
+for i in range(len(colors)):
     for color in colors:
         symbols.append(Symbol(f"{color}{i}"))
 
@@ -42,20 +43,21 @@ for color in colors:
         Symbol(f"{color}0"),
         Symbol(f"{color}1"),
         Symbol(f"{color}2"),
-        Symbol(f"{color}3")
+        Symbol(f"{color}3"),
+        Symbol(f"{color}4"),
     ))
 
 # Only one position per color.
 for color in colors:
-    for i in range(4):
-        for j in range(4):
+    for i in range(len(colors)):
+        for j in range(len(colors)):
             if i != j:
                 knowledge.add(Implication(
                     Symbol(f"{color}{i}"), Not(Symbol(f"{color}{j}"))
                 ))
 
 # Only one color per position.
-for i in range(4):
+for i in range(len(colors)):
     for c1 in colors:
         for c2 in colors:
             if c1 != c2:
@@ -64,40 +66,69 @@ for i in range(4):
                 ))
 
 correctPositions = 0
-while correctPositions<4 :
+while correctPositions<len(colors) :
     guess = createRandomCombination()
     print(guess)
     correctPositions = int(input("How many correct positions? "))
     if (correctPositions == 0):
-        for i in range(4):
+        for i in range(len(colors)):
             knowledge.add(Not(Symbol(f"{guess[i]}{i}")))
 
-    elif (correctPositions == 4):
-        for i in range(4):
+    elif (correctPositions == len(colors)):
+        for i in range(len(colors)):
             knowledge.add(Symbol(f"{guess[i]}{i}"))
 
-    elif (correctPositions == 1):
+    elif (correctPositions == 1): #A more general, but fun way to handle this case
         orredConditinos = ChellysOr()
-        for iCorrect in range(4):
+        for iCorrect in range(len(colors)):
             andedConditions = And(Symbol(f"{guess[iCorrect]}{iCorrect}"))
-            for iIncorrect in range(4):
+            for iIncorrect in range(len(colors)):
                 if iCorrect != iIncorrect:
                     andedConditions.add(Not(Symbol(f"{guess[iIncorrect]}{iIncorrect}")))
             orredConditinos.add(andedConditions)
         knowledge.add(orredConditinos)
            
-    else: #2 correct positions
-        #TODO: Make this more efficient and open to additions of more correct positions
-        knowledge.add(Or(And(Symbol(f"{guess[0]}0"), Symbol(f"{guess[1]}1")),
-        And(Symbol(f"{guess[0]}0"), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[1]}1")), Not(Symbol(f"{guess[3]}3"))),
-        And(Symbol(f"{guess[0]}0"), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[1]}1")), Not(Symbol(f"{guess[2]}2"))),
-        And(Symbol(f"{guess[1]}1"), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[0]}0")), Not(Symbol(f"{guess[3]}3"))),
-        And(Symbol(f"{guess[1]}1"), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[2]}2")), Not(Symbol(f"{guess[0]}0"))),
-        And(Symbol(f"{guess[2]}2"), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[1]}1"))), Not(Symbol(f"{guess[0]}0"))))
-       
+    elif (correctPositions == 2):
+        knowledge.add(Or(   
+            And(Symbol(f"{guess[0]}0"), Symbol(f"{guess[1]}1"), Not(Symbol(f"{guess[2]}2")), Not(Symbol(f"{guess[3]}3")), Not(Symbol(f"{guess[4]}4"))),
+            And(Symbol(f"{guess[0]}0"), Not(Symbol(f"{guess[1]}1")), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[3]}3")), Not(Symbol(f"{guess[4]}4"))),
+            And(Symbol(f"{guess[0]}0"), Not(Symbol(f"{guess[1]}1")), Not(Symbol(f"{guess[2]}2")), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[4]}4"))),
+            And(Symbol(f"{guess[0]}0"), Not(Symbol(f"{guess[1]}1")), Not(Symbol(f"{guess[2]}2")), Not(Symbol(f"{guess[3]}3")), Symbol(f"{guess[4]}4")),
+            And(Not(Symbol(f"{guess[0]}0")), Symbol(f"{guess[1]}1"), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[3]}3")), Not(Symbol(f"{guess[4]}4"))),
+            And(Not(Symbol(f"{guess[0]}0")), Symbol(f"{guess[1]}1"), Not(Symbol(f"{guess[2]}2")), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[4]}4"))),
+            And(Not(Symbol(f"{guess[0]}0")), Symbol(f"{guess[1]}1"), Not(Symbol(f"{guess[2]}2")), Not(Symbol(f"{guess[3]}3")), Symbol(f"{guess[4]}4")),
+            And(Not(Symbol(f"{guess[0]}0")), Not(Symbol(f"{guess[1]}1")), Symbol(f"{guess[2]}2"), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[4]}4"))), 
+            And(Not(Symbol(f"{guess[0]}0")), Not(Symbol(f"{guess[1]}1")), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[3]}3")), Symbol(f"{guess[4]}4")),
+            And(Not(Symbol(f"{guess[0]}0")), Not(Symbol(f"{guess[1]}1")), Not(Symbol(f"{guess[2]}2")), Symbol(f"{guess[3]}3"), Symbol(f"{guess[4]}4")),
+                ))
+        
+    elif (correctPositions == 3):
+        knowledge.add(Or(
+            And(Not(Symbol(f"{guess[0]}0")), Not(Symbol(f"{guess[1]}1")), Symbol(f"{guess[2]}2"), Symbol(f"{guess[3]}3"), Symbol(f"{guess[4]}4")),
+            And(Not(Symbol(f"{guess[0]}0")), Symbol(f"{guess[1]}1"), Not(Symbol(f"{guess[2]}2")), Symbol(f"{guess[3]}3"), Symbol(f"{guess[4]}4")),
+            And(Not(Symbol(f"{guess[0]}0")), Symbol(f"{guess[1]}1"), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[3]}3")), Symbol(f"{guess[4]}4")),
+            And(Not(Symbol(f"{guess[0]}0")), Symbol(f"{guess[1]}1"), Symbol(f"{guess[2]}2"), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[4]}4"))),
+            And(Symbol(f"{guess[0]}0"), Not(Symbol(f"{guess[1]}1")), Not(Symbol(f"{guess[2]}2")), Symbol(f"{guess[3]}3"), Symbol(f"{guess[4]}4")),
+            And(Symbol(f"{guess[0]}0"), Not(Symbol(f"{guess[1]}1")), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[3]}3")), Symbol(f"{guess[4]}4")),
+            And(Symbol(f"{guess[0]}0"), Not(Symbol(f"{guess[1]}1")), Symbol(f"{guess[2]}2"), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[4]}4"))),
+            And(Symbol(f"{guess[0]}0"), Symbol(f"{guess[1]}1"), Not(Symbol(f"{guess[2]}2")), Not(Symbol(f"{guess[3]}3")), Symbol(f"{guess[4]}4")), 
+            And(Symbol(f"{guess[0]}0"), Symbol(f"{guess[1]}1"), Not(Symbol(f"{guess[2]}2")), Symbol(f"{guess[3]}3"), Not(Symbol(f"{guess[4]}4"))),
+            And(Symbol(f"{guess[0]}0"), Symbol(f"{guess[1]}1"), Symbol(f"{guess[2]}2"), Not(Symbol(f"{guess[3]}3")), Not(Symbol(f"{guess[4]}4"))),
+                 ))
+        
+    elif (correctPositions == 4):
+        print("You must be mistaken! There are five colors, therefore there cannot be four correct positions.")
+        break
+
+    else:
+        for i in range(len(colors)):
+            knowledge.add(Symbol(f"{guess[i]}{i}"))      
+                   
+                         
     correctPositions = 0 
     for symbol in symbols:
         if model_check(knowledge, symbol):
-            print(symbol)
+            correctGuess[int(symbol.name[-1])] = symbol.name[:-1]
             correctPositions += 1
-    
+
+print("The secret combination is: ", correctGuess)

@@ -1,5 +1,6 @@
+# This file is taken from Harvard's CS50's Introduction to Artificial Intelligence with Python.
+# It contains the implementation of the logical sentences and the model checking algorithm.
 import itertools
-
 
 class Sentence():
 

@@ -1,7 +1,7 @@
 ## Mastrmind
 
-A knowledge-based AI Agnt developed with Python to play the game Mastermind on console.
-Prepare a list of different colors and the game will try to guess them
+A knowledge-based AI Agent developed with Python to play the game Mastermind on console.
+Prepare a list of different colors and the game will try to guess them!
 
 This project contains 3 files:
     - `mastermind 4 colors.py` : Plays the game with 4 different colors.
